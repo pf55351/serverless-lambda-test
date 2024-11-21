@@ -1,0 +1,46 @@
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: serverless-lambda-test
+
+useDotenv: true
+
+package:
+  individually: true
+  exclude:
+    - node_modules/aws-sdk/**
+    - .github/**
+    - .vscode/**
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: eu-west-1
+  stage: dev
+
+custom:
+  prune:
+    automatic: true
+    number: 5
+
+functions:
+  sendEmail:
+    handler: src/handlers/email/index.sendEmail
+    environment:
+      SMTP_SERVER: ${env:SMTP_SERVER}
+      SMTP_PORT: ${env:SMTP_PORT}
+      MAIL_USER: ${env:MAIL_USER}
+      PASSWORD: ${env:PASSWORD}
+      RECIPIENT: ${env:RECIPIENT}
+      FROM: ${env:FROM}
+
+  scan:
+    handler: src/handlers/dynamo/index.scan
+    environment:
+      DYNAMO_TABLE: ${env:DYNAMO_TABLE}
+      DYNAMO_REGION: ${env:DYNAMO_REGION}
+      DYNAMO_ACCESS_KEY_ID: ${env:DYNAMO_ACCESS_KEY_ID}
+      DYNAMO_SECRET_ACCESS_KEY: ${env:DYNAMO_SECRET_ACCESS_KEY}
+plugins:
+  - serverless-plugin-common-excludes
+  - serverless-plugin-include-dependencies
+  - serverless-prune-plugin
+  - serverless-dotenv-plugin
